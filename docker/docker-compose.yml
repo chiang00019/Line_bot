@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build: ./app
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/mydatabase
+    networks:
+      - mynetwork
+
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+
+volumes:
+  postgres_data:

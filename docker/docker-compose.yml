@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   fastapi:
-    build: ./app
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: fastapi_app
     ports:
       - "8000:8000"

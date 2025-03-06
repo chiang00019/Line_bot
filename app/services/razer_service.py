@@ -65,6 +65,12 @@ class RazerService:
         login_button.click()
         print("✅ 點擊登入按鈕")
 
+    def click_razer_gold_wallet(self):
+        # 等待按鈕出現並點擊
+        button = self.page.wait_for_selector("//div[contains(@class, 'pay-method-item-pc') and contains(@title, 'Razer Gold Wallet')]", state="visible", timeout=5000)
+        button.click()
+        print("✅ 成功點擊 Razer Gold Wallet 支付方式")
+
     def select_product(self):
         """ 選擇商品並確認 """
         self.page.click("//div[@class='goods-item-pc' and @data-key='ios_h55na.mol.ph.680echoes']")
@@ -83,7 +89,6 @@ class RazerService:
         new_page.wait_for_load_state("load")
         self.page = new_page
         print(f"✅ 成功切換到新分頁，當前網址: {self.page.url}")
-
 
     def accept_all_buttons(self):
         #找到Accept-all按鈕並點擊
@@ -214,6 +219,9 @@ if __name__ == "__main__":
         # 測試點擊選項後登入
         service.agree_terms_and_login()
         print("✅ 成功登入遊戲帳號")
+
+        service.click_razer_gold_wallet()
+        print("✅ 成功選擇付款方式")
 
         # 測試選擇商品並確認
         service.select_product()

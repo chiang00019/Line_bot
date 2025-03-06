@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 import pyotp
 import time
+import re
 from sqlalchemy.orm import Session
 # from app.models.transaction import Transaction
 
@@ -64,6 +65,46 @@ class RazerService:
         login_button = self.page.locator(".userid-login-btn")
         login_button.click()
         print("✅ 點擊登入按鈕")
+
+    def get_game_name_and_verify(self, game_name: str, timeout=10000):
+        """
+        獲取 Game ID 並驗證名稱是否匹配。
+        """
+        game_id_input = self.page.wait_for_selector("//span[contains(text(), 'Game ID')]/following-sibling::div/input", timeout=timeout)
+
+        # 等待 Game ID 顯示完整名稱
+        self.page.wait_for_function(
+            """
+            () => {
+                const input = [...document.querySelectorAll("input.gc-input-pc")]
+                    .find(el => el.value && /\D+\(\d+\)/.test(el.value));
+                return input !== undefined;
+            }
+            """, timeout=timeout
+        )
+
+        game_id = self.page.evaluate("""
+            () => {
+                const input = [...document.querySelectorAll("input.gc-input-pc")]
+                    .find(el => el.value && /\D+\(\d+\)/.test(el.value));
+                return input ? input.value : null;
+            }
+        """)
+
+        if not game_id:
+            raise Exception("❌ 無法解析 Game ID")
+
+        match = re.match(r"(.+?)\(\d+\)", game_id)
+        extracted_game_name = match.group(1) if match else None
+
+        if extracted_game_name != game_name:
+            print(f"❌ 名稱不匹配 | 預期: {game_name} | 取得: {extracted_game_name}")
+            self.page.context.close()
+            self.page.browser.close()
+            raise Exception("❌ 測試失敗，Game Name 不匹配")
+
+        print(f"✅ Game Name 驗證成功: {extracted_game_name}")
+        return extracted_game_name
 
     def click_razer_gold_wallet(self):
         # 等待按鈕出現並點擊
@@ -219,6 +260,9 @@ if __name__ == "__main__":
         # 測試點擊選項後登入
         service.agree_terms_and_login()
         print("✅ 成功登入遊戲帳號")
+
+        service.get_game_name_and_verify("yっs")
+        print("✅ 名字驗證成功")
 
         service.click_razer_gold_wallet()
         print("✅ 成功選擇付款方式")

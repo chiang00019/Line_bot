@@ -18,7 +18,6 @@ class RazerService:
         self.context = self.browser.new_context()  # 創建 context
         self.page = self.browser.new_page()
 
-
     def close_browser(self):
         """ 關閉瀏覽器 """
         self.browser.close()
@@ -35,7 +34,6 @@ class RazerService:
         """ 選擇 English"""
         english_option = self.page.locator("//div[contains(@class, 'lan-item') and text()='English']")
         english_option.click()
-
 
     def select_server(self):
         """選擇遊戲伺服器 (Asia)"""

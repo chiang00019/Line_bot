@@ -69,7 +69,6 @@ class RazerService:
         """ 選擇商品並確認 """
         self.page.click("//div[@class='goods-item-pc' and @data-key='ios_h55na.mol.ph.680echoes']")
         print("✅ 勾選商品")
-        timeout = 15000
 
         with self.page.context.expect_page() as new_page_info:
             self.page.click("//button[contains(@class, 'topup-btn')]")
@@ -95,29 +94,26 @@ class RazerService:
         # 找到all agree按鈕並點擊
         agree_button = self.page.wait_for_selector(".btn-primary", state="attached")
         agree_button.click()
-        print("all agree")
+        print("✅all agree按鈕點擊成功")
 
-    def login_account(self, user_id: str, password: str):
-        """ 使用者登入儲值帳號 """
-        # self.page.goto("ttps://pay.neteasegames.com/identityv/topup?c=m")
+    # def login_account(self, email: str, password: str):
+    #     """ 使用者登入儲值帳號 """
 
-        self.page.fill("#loginEmail", user_id)
-        self.page.fill("#loginPassword", password)
-        self.page.click("#btn-log-in")
-        time.sleep(3)  # 等待登入完成
+    #     self.page.fill("#loginEmail", email)
+    #     self.page.fill("#loginPassword", password)
+    #     self.page.click("#btn-log-in")
+        # time.sleep(3)  # 等待登入完成
 
-        # 驗證使用者名稱
-        user_name_displayed = self.page.inner_text(".col")  # 確保匹配 Selenium 的 XPath
-        return user_name_displayed
+        # # 驗證使用者名稱
+        # user_name_displayed = self.page.inner_text(".col")  # 確保匹配 Selenium 的 XPath
 
     def login_razer(self, razer_email: str, razer_password: str):
         """ 登入 Razer 帳戶 """
-        self.page.goto("https://razerid.razer.com/")
 
         self.page.fill("#loginEmail", razer_email)
         self.page.fill("#loginPassword", razer_password)
         self.page.click("#btn-log-in")
-        time.sleep(3)
+        # time.sleep(100)
 
         # 檢查是否需要 OTP
         if self.page.locator(".input-otp").is_visible():
@@ -225,6 +221,13 @@ if __name__ == "__main__":
 
         service.accept_all_buttons()
         print("✅第二頁 按下確認按鈕")
+
+        # 測試登入（假數據）
+        fake_user_id = "dhhwij417@gmail.com"
+        fake_password = "jason2202247"
+
+        service.login_razer(fake_user_id, fake_password)
+        print("✅第二頁 登入Razer")
 
         # # 測試登入（假數據）
         # fake_user_id = "test_user"

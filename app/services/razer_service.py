@@ -140,33 +140,27 @@ class RazerService:
         agree_button.click()
         print("✅all agree按鈕點擊成功")
 
-    # def login_account(self, email: str, password: str):
-    #     """ 使用者登入儲值帳號 """
-
-    #     self.page.fill("#loginEmail", email)
-    #     self.page.fill("#loginPassword", password)
-    #     self.page.click("#btn-log-in")
-        # time.sleep(3)  # 等待登入完成
-
-        # # 驗證使用者名稱
-        # user_name_displayed = self.page.inner_text(".col")  # 確保匹配 Selenium 的 XPath
-
     def login_razer(self, razer_email: str, razer_password: str):
         """ 登入 Razer 帳戶 """
 
         self.page.fill("#loginEmail", razer_email)
         self.page.fill("#loginPassword", razer_password)
         self.page.click("#btn-log-in")
-        # time.sleep(100)
 
-        # 檢查是否需要 OTP
+    def complete_transaction(self):
+        """ 點擊完成按鈕，確認交易成功 """
+        self.page.click(".btnConfirm")
+        time.sleep(3)
+
+                # 檢查是否需要 OTP
         if self.page.locator(".input-otp").is_visible():
             otp_code = self.generate_otp()
             self.page.fill(".input-otp", otp_code)
             self.page.click("#otp-submit")
             time.sleep(3)
 
-        return "dashboard" in self.page.url
+        # return "dashboard" in self.page.url
+        return self.page.screenshot()
 
     def generate_otp(self):
         """ 產生 OTP 驗證碼 """
@@ -174,11 +168,6 @@ class RazerService:
         totp = pyotp.TOTP(SECRET_KEY)
         return totp.now()
 
-    def complete_transaction(self):
-        """ 點擊完成按鈕，確認交易成功 """
-        self.page.click(".btnConfirm")
-        time.sleep(3)
-        return self.page.screenshot()
 
     def verify_final_user(self, expected_user_id: str, expected_user_name: str):
         """ 在交易成功畫面上再次驗證 ID & 名稱 """
@@ -273,7 +262,7 @@ if __name__ == "__main__":
         print("✅第二頁 按下確認按鈕")
 
         # 測試登入（假數據）
-        fake_user_id = "dhhwij417@gmail.com"
+        fake_user_id = "fhafif865@gmail.com"
         fake_password = "jason2202247"
 
         service.login_razer(fake_user_id, fake_password)

@@ -14,6 +14,7 @@ class RazerService:
         """ 啟動 Playwright 瀏覽器 """
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(headless=False)  # 測試時可設為 False
+        self.context = self.browser.new_context()  # 創建 context
         self.page = self.browser.new_page()
 
 
@@ -67,7 +68,34 @@ class RazerService:
     def select_product(self):
         """ 選擇商品並確認 """
         self.page.click("//div[@class='goods-item-pc' and @data-key='ios_h55na.mol.ph.680echoes']")
-        self.page.click("//button[contains(@class, 'topup-btn')]")
+        print("✅ 勾選商品")
+        timeout = 15000
+
+        with self.page.context.expect_page() as new_page_info:
+            self.page.click("//button[contains(@class, 'topup-btn')]")
+            print("✅ 確認 Top up，等待新分頁開啟...")
+
+        current_pages = self.page.context.pages  # 獲取所有開啟的分頁
+
+        print(f"📌 目前開啟的分頁數量: {len(current_pages)}")
+
+        # 取得新開啟的分頁
+        new_page = new_page_info.value
+        new_page.wait_for_load_state("load")
+        self.page = new_page
+        print(f"✅ 成功切換到新分頁，當前網址: {self.page.url}")
+
+
+    def accept_all_buttons(self):
+        #找到Accept-all按鈕並點擊
+        accept_button = self.page.wait_for_selector("//button[contains(@class, 'cky-btn-accept')]", state="visible", timeout=10000)
+        accept_button.click()
+        print("✅ Cookie 同意按鈕點擊成功")
+
+        # 找到all agree按鈕並點擊
+        agree_button = self.page.wait_for_selector(".btn-primary", state="attached")
+        agree_button.click()
+        print("all agree")
 
     def login_account(self, user_id: str, password: str):
         """ 使用者登入儲值帳號 """
@@ -191,15 +219,18 @@ if __name__ == "__main__":
         service.agree_terms_and_login()
         print("✅ 成功登入遊戲帳號")
 
-        # 測試選擇商品
+        # 測試選擇商品並確認
         service.select_product()
         print("✅商品選擇完成")
 
-        # 測試登入（假數據）
-        fake_user_id = "test_user"
-        fake_password = "password123"
-        displayed_name = service.login_account(fake_user_id, fake_password)
-        print(f"✅ 使用者登入成功，顯示名稱: {displayed_name}")
+        service.accept_all_buttons()
+        print("✅第二頁 按下確認按鈕")
+
+        # # 測試登入（假數據）
+        # fake_user_id = "test_user"
+        # fake_password = "password123"
+        # displayed_name = service.login_account(fake_user_id, fake_password)
+        # print(f"✅ 使用者登入成功，顯示名稱: {displayed_name}")
 
     except Exception as e:
         print(f"❌ 測試失敗: {e}")

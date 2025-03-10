@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+message MigrationPayload {
+  message OtpParameters {
+    bytes secret = 1;
+    string name = 2;
+    string issuer = 3;
+    int32 algorithm = 4;
+    int32 digits = 5;
+    int32 type = 6;
+  }
+
+  repeated OtpParameters otp_parameters = 1;
+  int32 version = 2;
+  int32 batch_size = 3;
+  bytes batch_id = 4;
+  bytes batch_index = 5;
+}
